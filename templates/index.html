@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deep Learning Image Captioning Studio</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0ea5e9;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 0.8rem;
+    }
+
+    .badge {
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dropzone {
+      border: 2px dashed #475569;
+      border-radius: 0.75rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .dropzone svg {
+      width: 48px;
+      height: 48px;
+      fill: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .sample-title {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 1.25rem 0 0.5rem 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sample-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+
+    .sample-thumb {
+      border-radius: 0.5rem;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      aspect-ratio: 4/3;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .sample-thumb:hover {
+      transform: scale(1.05);
+    }
+
+    .sample-thumb.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
+    .sample-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .form-group {
+      margin-top: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text-muted);
+    }
+
+    select {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 4px 14px 0 rgba(2, 132, 199, 0.39);
+    }
+
+    .btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .preview-box {
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .preview-box img {
+      max-width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+    }
+
+    .caption-banner {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #0f172a;
+      border-left: 4px solid var(--accent);
+      border-radius: 0.5rem;
+    }
+
+    .caption-banner h3 {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+    }
+
+    .caption-banner p {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+
+    .meta-tags {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.6rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .meta-tag strong {
+      color: var(--text-main);
+    }
+
+    .heatmap-section {
+      margin-top: 1.5rem;
+    }
+
+    .heatmap-section h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .heatmap-box {
+      background: #0f172a;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .heatmap-box img {
+      width: 100%;
+      display: block;
+    }
+
+    .spinner {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-left-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>AI Image Captioning Studio</h1>
+      <p>Computer Vision (OpenCV) &bull; PyTorch ResNet-50 &bull; TensorFlow MobileNetV2 &bull; Bahdanau Attention</p>
+      <div class="badges">
+        <span class="badge">OpenCV 5.1</span>
+        <span class="badge">PyTorch 2.15</span>
+        <span class="badge">TensorFlow 2.21</span>
+        <span class="badge">Spatial Attention</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Input Panel -->
+      <div class="card">
+        <h2>📷 Input Image</h2>
+        
+        <div class="dropzone" id="dropzone">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          <p><strong>Click to upload</strong> or drag & drop</p>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">PNG, JPG, JPEG up to 10MB</p>
+          <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+
+        <div class="sample-title">Or pick a sample image:</div>
+        <div class="sample-grid" id="sampleGrid">
+          <div class="sample-thumb selected" data-filename="dog_park.jpg" title="Dog in Park">
+            <img src="/data/samples/dog_park.jpg" alt="Dog">
+          </div>
+          <div class="sample-thumb" data-filename="red_car.jpg" title="Red Sports Car">
+            <img src="/data/samples/red_car.jpg" alt="Car">
+          </div>
+          <div class="sample-thumb" data-filename="cat_window.jpg" title="Cat by Window">
+            <img src="/data/samples/cat_window.jpg" alt="Cat">
+          </div>
+          <div class="sample-thumb" data-filename="sunset_ocean.jpg" title="Sunset Ocean">
+            <img src="/data/samples/sunset_ocean.jpg" alt="Sunset">
+          </div>
+          <div class="sample-thumb" data-filename="bicycle_tree.jpg" title="Bicycle by Tree">
+            <img src="/data/samples/bicycle_tree.jpg" alt="Bicycle">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="frameworkSelect">Deep Learning Framework:</label>
+          <select id="frameworkSelect">
+            <option value="pytorch" selected>PyTorch (ResNet-50 + Bahdanau Attention + LSTM)</option>
+            <option value="tensorflow">TensorFlow (MobileNetV2 + Attention + GRU)</option>
+            <option value="both">Side-by-Side Comparison (PyTorch & TensorFlow)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="methodGroup">
+          <label for="methodSelect">Decoding Strategy:</label>
+          <select id="methodSelect">
+            <option value="beam" selected>Beam Search (Width = 3)</option>
+            <option value="greedy">Greedy Search (Fast)</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button class="btn" id="generateBtn" style="margin-top: 0; flex: 2;">✨ Generate Caption</button>
+          <button class="btn" id="resetBtn" style="margin-top: 0; flex: 1; background: #334155; box-shadow: none;">🔄 Reset</button>
+        </div>
+      </div>
+
+      <!-- Result Panel -->
+      <div class="card">
+        <h2>🖼️ Generated Output & Visual Analysis</h2>
+        
+        <div class="preview-box" id="previewBox">
+          <div class="spinner" id="spinner"></div>
+          <img id="resultImage" src="/data/samples/dog_park.jpg" alt="Preview">
+        </div>
+
+        <div class="caption-banner" id="captionBanner">
+          <h3 id="bannerTitle">Predicted Caption</h3>
+          <p id="captionText">Click "Generate Caption" to run deep learning inference.</p>
+          <div class="meta-tags">
+            <span class="meta-tag">Framework: <strong id="metaFramework">PyTorch</strong></span>
+            <span class="meta-tag">Latency: <strong id="metaLatency">-- ms</strong></span>
+          </div>
+        </div>
+
+        <div class="heatmap-section" id="heatmapSection" style="display: none;">
+          <h3>🔍 Spatial Attention Heatmaps (Where the Network Looked)</h3>
+          <div class="heatmap-box">
+            <img id="heatmapImage" src="" alt="Attention Map">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedSample = "dog_park.jpg";
+    let uploadedFile = null;
+
+    const dropzone = document.getElementById("dropzone");
+    const fileInput = document.getElementById("fileInput");
+    const sampleThumbs = document.querySelectorAll(".sample-thumb");
+    const resultImage = document.getElementById("resultImage");
+    const spinner = document.getElementById("spinner");
+    const captionText = document.getElementById("captionText");
+    const metaFramework = document.getElementById("metaFramework");
+    const metaLatency = document.getElementById("metaLatency");
+    const heatmapSection = document.getElementById("heatmapSection");
+    const heatmapImage = document.getElementById("heatmapImage");
+    const generateBtn = document.getElementById("generateBtn");
+    const frameworkSelect = document.getElementById("frameworkSelect");
+    const methodGroup = document.getElementById("methodGroup");
+
+    frameworkSelect.addEventListener("change", () => {
+      methodGroup.style.display = frameworkSelect.value === "pytorch" ? "block" : "none";
+    });
+
+    dropzone.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", (e) => {
+      if (e.target.files.length > 0) {
+        uploadedFile = e.target.files[0];
+        selectedSample = null;
+        sampleThumbs.forEach(t => t.classList.remove("selected"));
+        resultImage.src = URL.createObjectURL(uploadedFile);
+      }
+    });
+
+    sampleThumbs.forEach(thumb => {
+      thumb.addEventListener("click", () => {
+        sampleThumbs.forEach(t => t.classList.remove("selected"));
+        thumb.classList.add("selected");
+        selectedSample = thumb.getAttribute("data-filename");
+        uploadedFile = null;
+        resultImage.src = `/data/samples/${selectedSample}`;
+      });
+    });
+
+    generateBtn.addEventListener("click", async () => {
+      spinner.style.display = "block";
+      resultImage.style.opacity = "0.3";
+      generateBtn.disabled = true;
+
+      const formData = new FormData();
+      if (uploadedFile) {
+        formData.append("file", uploadedFile);
+      } else if (selectedSample) {
+        formData.append("sample", selectedSample);
+      }
+      formData.append("framework", frameworkSelect.value);
+      formData.append("method", document.getElementById("methodSelect").value);
+
+      try {
+        const response = await fetch("/caption", {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+
+        if (data.error) {
+          alert("Error: " + data.error);
+        } else {
+          captionText.innerText = `"${data.caption}"`;
+          metaFramework.innerText = data.framework.toUpperCase();
+          metaLatency.innerText = `${data.latency_ms} ms`;
+          resultImage.src = data.image_url + "?t=" + Date.now();
+
+          if (data.heatmap_url) {
+            heatmapSection.style.display = "block";
+            heatmapImage.src = data.heatmap_url + "?t=" + Date.now();
+          } else {
+            heatmapSection.style.display = "none";
+          }
+        }
+      } catch (err) {
+        alert("Failed to connect to backend: " + err);
+      } finally {
+        spinner.style.display = "none";
+        resultImage.style.opacity = "1";
+        generateBtn.disabled = false;
+      }
+    });
+
+    const resetBtn = document.getElementById("resetBtn");
+    resetBtn.addEventListener("click", () => {
+      selectedSample = "dog_park.jpg";
+      uploadedFile = null;
+      fileInput.value = "";
+      sampleThumbs.forEach(t => t.classList.remove("selected"));
+      sampleThumbs[0].classList.add("selected");
+      resultImage.src = "/data/samples/dog_park.jpg";
+      resultImage.style.opacity = "1";
+      captionText.innerText = "Click \"Generate Caption\" to run deep learning inference.";
+      metaFramework.innerText = "PyTorch";
+      metaLatency.innerText = "-- ms";
+      heatmapSection.style.display = "none";
+      heatmapImage.src = "";
+    });
+  </script>
+</body>
+</html>

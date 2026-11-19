@@ -1,0 +1,42 @@
+[
+  {
+    "image_path": "/Users/tarunojha/Image-Captioning/data/samples/dog_park.jpg",
+    "captions": [
+      "a brown dog playing on the green grass",
+      "a playful puppy running across the lawn",
+      "a cute dog enjoying the sunny park outdoors"
+    ]
+  },
+  {
+    "image_path": "/Users/tarunojha/Image-Captioning/data/samples/red_car.jpg",
+    "captions": [
+      "a red sports car driving on the asphalt road",
+      "a bright red automobile on the highway",
+      "a modern red car parked along the street"
+    ]
+  },
+  {
+    "image_path": "/Users/tarunojha/Image-Captioning/data/samples/cat_window.jpg",
+    "captions": [
+      "a ginger cat resting peacefully near the window",
+      "a cute kitten sitting on a cozy rug",
+      "a sleepy cat looking out at the outdoors"
+    ]
+  },
+  {
+    "image_path": "/Users/tarunojha/Image-Captioning/data/samples/sunset_ocean.jpg",
+    "captions": [
+      "a golden sunset over the calm ocean waves",
+      "beautiful colorful evening sky above the sea",
+      "a peaceful sunset landscape with orange sky and water"
+    ]
+  },
+  {
+    "image_path": "/Users/tarunojha/Image-Captioning/data/samples/bicycle_tree.jpg",
+    "captions": [
+      "a vintage bicycle parked next to a green tree",
+      "a city bike standing by the park sidewalk",
+      "a commuter bicycle resting under a large tree"
+    ]
+  }
+]

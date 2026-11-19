@@ -1,0 +1,9 @@
+venv/
+*.pyc
+__pycache__/
+.DS_Store
+.keras/
+.matplotlib/
+checkpoints/*.pth
+checkpoints/*.weights.h5
+outputs/
